@@ -29,11 +29,20 @@ export stores, blocktype, manifest, chronos
 logScope:
   topics = "dagger storestream"
 
+const
+  StoreStreamTrackerName* = "StoreStream"
+
 type
   StoreStream* = ref object of SeekableStream
     store*: BlockStore
     manifest*: Manifest
     emptyBlock*: seq[byte]
+
+method initStream*(s: StoreStream) =
+  if s.objName.len == 0:
+    s.objName = StoreStreamTrackerName
+
+  procCall SeekableStream(s).initStream()
 
 proc new*(
   T: type StoreStream,
