@@ -60,6 +60,8 @@ suite "Test Node":
     close(file)
     await node.stop()
 
+    checkTrackers()
+
   test "Fetch Manifest":
     var
       manifest = Manifest.new().tryGet()
