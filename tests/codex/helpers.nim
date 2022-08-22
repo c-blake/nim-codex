@@ -1,12 +1,24 @@
 import std/options
 
+import pkg/asynctest
 import pkg/chronos
 import pkg/libp2p
+import pkg/libp2p/muxers/mplex/lpchannel
+import pkg/libp2p/transports/tcptransport
+import pkg/libp2p/stream/bufferstream
+import pkg/libp2p/crypto/crypto
+import pkg/libp2p/stream/lpstream
+import pkg/libp2p/stream/chronosstream
+import pkg/libp2p/muxers/mplex/lpchannel
+import pkg/libp2p/protocols/secure/secure
+
 import pkg/libp2p/varint
 import pkg/codex/blocktype as bt
 import pkg/codex/stores
 import pkg/codex/manifest
 import pkg/codex/rng
+import pkg/codex/streams/storestream
+import pkg/codex/streams/asyncstreamwrapper
 
 import ./helpers/nodeutils
 import ./helpers/randomchunker
@@ -14,6 +26,49 @@ import ./helpers/mockdiscovery
 import ./helpers/eventually
 
 export randomchunker, nodeutils, mockdiscovery, eventually
+
+const
+  StreamTransportTrackerName = "stream.transport"
+  StreamServerTrackerName = "stream.server"
+  DgramTransportTrackerName = "datagram.transport"
+
+  trackerNames = [
+    LPStreamTrackerName,
+    ConnectionTrackerName,
+    LPChannelTrackerName,
+    SecureConnTrackerName,
+    BufferStreamTrackerName,
+    TcpTransportTrackerName,
+    StreamTransportTrackerName,
+    StreamServerTrackerName,
+    DgramTransportTrackerName,
+    ChronosStreamTrackerName,
+    StoreStreamTrackerName,
+  ]
+
+iterator testTrackers*(extras: openArray[string] = []): TrackerBase =
+  for name in trackerNames:
+    let t = getTracker(name)
+    if not isNil(t): yield t
+  for name in extras:
+    let t = getTracker(name)
+    if not isNil(t): yield t
+
+template checkTracker*(name: string) =
+  var tracker = getTracker(name)
+  if tracker.isLeaked():
+    checkpoint tracker.dump()
+    fail()
+
+template checkTrackers*() =
+  for tracker in testTrackers():
+    if tracker.isLeaked():
+      checkpoint tracker.dump()
+      fail()
+  # Also test the GC is not fooling with us
+  try:
+    GC_fullCollect()
+  except: discard
 
 # NOTE: The meaning of equality for blocks
 # is changed here, because blocks are now `ref`
