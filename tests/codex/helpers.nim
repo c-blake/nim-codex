@@ -44,6 +44,7 @@ const
     DgramTransportTrackerName,
     ChronosStreamTrackerName,
     StoreStreamTrackerName,
+    AsyncStreamWrapperName,
   ]
 
 iterator testTrackers*(extras: openArray[string] = []): TrackerBase =
