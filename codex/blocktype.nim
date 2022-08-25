@@ -22,7 +22,8 @@ import pkg/questionable/results
 import ./errors
 
 const
-  BlockSize* = 31 * 64 * 4 # block size
+  BlockSize* = 31 * 64 * 4    # Default block size
+  MaxBlockSize* = 1 shl 30    # Maximum allowed block size
 
 type
   Block* = ref object of RootObj
