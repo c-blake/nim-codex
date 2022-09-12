@@ -254,7 +254,7 @@ proc initRestApi*(node: CodexNodeRef, conf: CodexConf): RestRouter =
       except AsyncStreamError:
         return RestApiResponse.error(Http500)
       finally:
-        await bodyStream.closeImpl()
+        await bodyStream.close()
 
       # if we got here something went wrong?
       return RestApiResponse.error(Http500)
