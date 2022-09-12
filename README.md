@@ -122,7 +122,9 @@ Example:
 ### `/api/codex/v1/upload[?chunk=N]`
 
 Upload a file, upon success returns the `Cid` of the uploaded file.
-The optional 'chunk' parameter specifies Manifest.blockSize.
+The optional `chunk` parameter allows specifying a custom chunk size. 
+
+For large files (several gigabytes and up), specifying a chunk size too small might lead to a large manifest file since each hash will occupy some number of bytes. For example, sha2 needs 32 bytes, plus a few bytes for additional information packed in the [Cid](https://github.com/multiformats/cid) (multihash id, version, etc...). Hence, the resulting manifest will be of size `((file_size / chunk) * ~32)`. A manifest with a million blocks (around ~7gb with an 8K chunk size), would result in a manifest file of around ~30mb.
 
 Example:
 
